@@ -10,7 +10,7 @@ def calculate_winrate_by_champion(idChampion, lane):
 
     return winrate
 
-def valid_composition_calculate_initial_fitness(Tim):
+def fit_function_tim(Tim):
     fitness = 0
     hasCarry = False
     hasSupp = False
