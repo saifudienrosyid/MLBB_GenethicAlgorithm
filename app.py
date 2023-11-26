@@ -16,7 +16,11 @@ df, hero_df, total_he, total_tf = preprocess_data(file_path)
 hero_data = hero_df.to_dict(orient='records')
 
 st.title('Genetic Algorithm MLBB Team Composition')
-st.write('Presented by Concat Boys')
+st.write('Presented by Concat Boys:')
+st.write(
+'Saifudin Rosyid,',
+'Mufti Alfarokhul Azam, ',
+'M. Al-Amin')
 
 st.subheader('Dataframe')
 st.dataframe(df[['Name', 'Lane','Hp', 'Phy_Damage', 'Hero_Defense', 'Mov_Speed', 'Hard_Engage', 'Team_Fight', 'Win_Rate']], use_container_width=True)
