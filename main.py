@@ -1,131 +1,49 @@
-import sys
-import os
-import typing as t
+import matplotlib.pyplot as plt
+import random
+from geneticalgorithm.Dataset import preprocess_data
+from geneticalgorithm.GeneticAlgorithm import genetic_algorithm
 
-from typing import Optional
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+# Load and preprocess data
+file_path = 'dataset/Mlbb_Heroes.csv'
+df, hero_df, total_he, total_tf = preprocess_data(file_path)
+hero_data = hero_df.to_dict(orient='records')
 
-sys.path.append(os.path.abspath('app/geneticalgorithm'))
+# Initialize population
+pop_size = 10
+population = [random.sample(hero_data[:-1], 5) for _ in range(pop_size)]
 
-import GeneticAlgorithm as GAService
+# Set algorithm parameters
+target_positions = ['Gold Lane', 'Mid', 'EXP Lane', 'Roamer', 'Jungler']
+generations = 30
+tournament_size = 3
+crossover_rate = 0.8
+mutation_rate = 0.1
 
-app = FastAPI(title="MOBA AID", docs_url="/api/docs", openapi_url="/api")
+# Run genetic algorithm for hard engage
+team_strategy_hard_engage = 0
+result_hard_engage, temp_result_hard_engage = genetic_algorithm(population, hero_data, target_positions, generations, tournament_size, crossover_rate, mutation_rate, team_strategy_hard_engage, pop_size)
 
-origins = [
-    "http://localhost:3000",
-    "https://moba-aid.vercel.app",
-]
+# Run genetic algorithm for team fight
+team_strategy_team_fight = 1
+result_team_fight, temp_result_team_fight = genetic_algorithm(population, hero_data, target_positions, generations, tournament_size, crossover_rate, mutation_rate, team_strategy_team_fight, pop_size)
 
+# Print and visualize results
+print("Individu Terbaik (Hard Engage):")
+for hero in result_hard_engage:
+    print(f"Name: {hero['Name']}, Lane: {hero['Lane']}")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+print("Individu Terbaik (Team Fight):")
+for hero in result_team_fight:
+    print(f"Name: {hero['Name']}, Lane: {hero['Lane']}")
 
+# Plot fitness progress for both strategies on the same graph
+plt.plot((temp_result_hard_engage / total_he) * 100, label="Hard Engage")
+plt.plot((temp_result_team_fight / total_tf) * 100, label="Team Fight")
 
-class StartRequest(BaseModel):
-    NEEDED_RETURN_SIZE: int
-    ENEMY_HEROES: Optional[t.List] = []
-    BANNED_HEROES: Optional[t.List] = []
-    PICKED_HEROES: Optional[t.Dict] = {}
+plt.title("Fitness Progress")
+plt.xlabel("Generation")
+plt.ylabel("Fitness")
+plt.legend()  # Add legend to differentiate the lines
+plt.show()
 
-
-class OptimizedTeam(BaseModel):
-    top: Optional[int]
-    jungle: Optional[int]
-    mid: Optional[int]
-    adc: Optional[int]
-    support: Optional[int]
-
-
-def validate_request_params(startRequest):
-    if startRequest.NEEDED_RETURN_SIZE > 5 or startRequest.NEEDED_RETURN_SIZE < 1:
-        raise HTTPException(
-            status_code=400,
-            detail="NEEDED_RETURN_SIZE must be a value between 1 and 5.",
-            headers={
-                "X-Error": "Incorrect value for NEEDED_RETURN_SIZE."},
-        )
-
-    if(startRequest.ENEMY_HEROES):
-        non_numeric_enemy_len = len(
-            [s for s in startRequest.ENEMY_HEROES if not str(s).isdigit()])
-
-        if non_numeric_enemy_len > 0:
-            raise HTTPException(
-                status_code=400,
-                detail="ENEMY_HEROES values must be an integer according to the champions id.",
-                headers={
-                    "X-Error": "Incorrect value for ENEMY_HEROES."},
-            )
-
-    if(startRequest.PICKED_HEROES):
-        lanes = ['top', 'jungle', 'mid', 'adc', 'support']
-        lanes_picked = list(startRequest.PICKED_HEROES.keys())
-        diff_lanes_len = len(list((set(lanes_picked) - set(lanes))))
-
-        if diff_lanes_len > 0:
-            raise HTTPException(
-                status_code=400,
-                detail="PICKED_HEROES keys must be top, jungle, mid, adc or support.",
-                headers={
-                    "X-Error": "Incorrect key for PICKED_HEROES."},
-            )
-
-        picked_list = list(startRequest.PICKED_HEROES.values())
-        non_numeric_picked_len = len(
-            [s for s in picked_list if not str(s).isdigit()])
-
-        if non_numeric_picked_len > 0:
-            raise HTTPException(
-                status_code=400,
-                detail="PICKED_HEROES values must be an integer according to the champions id.",
-                headers={
-                    "X-Error": "Incorrect value for PICKED_HEROES."},
-            )
-
-    if(startRequest.BANNED_HEROES):
-        non_numeric_banned_len = len(
-            [s for s in startRequest.BANNED_HEROES if not str(s).isdigit()])
-
-        if non_numeric_banned_len > 0:
-            raise HTTPException(
-                status_code=400,
-                detail="BANNED_HEROES values must be an integer according to the champions id.",
-                headers={
-                    "X-Error": "Incorrect value for BANNED_HEROES."},
-            )
-
-
-@app.get("/")
-def info():
-    """
-    Health check and last release info.
-    """
-    return {"MOBA AID is working fine. Last updated on 16:00 12/Jul/2021."}
-
-
-@app.post("/suggest",
-          response_model=OptimizedTeam
-          )
-def suggest(startRequest: StartRequest):
-    """
-    Executes Genetic Algorithm to suggest your draft next step.
-    """
-
-    validate_request_params(startRequest)
-
-    startRequest.BANNED_HEROES.append(startRequest.ENEMY_HEROES)
-    next_picks = GAService.run_ga(startRequest.NEEDED_RETURN_SIZE,
-                                  startRequest.ENEMY_HEROES, startRequest.PICKED_HEROES, startRequest.BANNED_HEROES)
-    team = OptimizedTeam()
-
-    for lane, championId in next_picks.items():
-        setattr(team, lane, championId)
-
-    return team
+print(result_hard_engage)
