@@ -38,7 +38,7 @@ pop_size = st.number_input('Ukuran Populasi', min_value=1, value=10)
 population = [random.sample(hero_data[:-1], 5) for _ in range(pop_size)]
 
 generations = st.number_input('Jumlah Generasi', min_value=1, value=30)
-tournament_size = st.number_input('Tournament Size', min_value=1, value=3, max_value=10)
+tournament_size = st.number_input('Tournament Size', min_value=1, value=3)
 crossover_rate = st.number_input('Crossover Rate', value=0.8, max_value=1.00)
 mutation_rate = st.number_input('Mutation Rate', value=0.10, max_value=1.00)
 
