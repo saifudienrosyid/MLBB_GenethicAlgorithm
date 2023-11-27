@@ -77,6 +77,12 @@ def genetic_algorithm(population, hero_data, target_positions, generations, tour
         # Print results for each generation
         temp_result.append(best_fitness)
         print(f"Generation {generation + 1}, Best Fitness: {best_fitness}")
+    
+        # Pilih individu terbaik dari populasi terakhir
+    fitness_values = [calculate_fitness(individual, target_positions, team_strategy) for individual in population]
+    best_individual_index = np.argmax(fitness_values)
+    best_individual = population[best_individual_index]
+
 
     return best_individual, temp_result
 
