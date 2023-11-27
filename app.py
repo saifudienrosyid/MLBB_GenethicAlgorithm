@@ -15,7 +15,7 @@ file_path = 'Dataset/Mlbb_Heroes.csv'
 df, hero_df, total_he, total_tf = preprocess_data(file_path)
 hero_data = hero_df.to_dict(orient='records')
 
-st.title('Genetic Algorithm MLBB Team Composition')
+st.title('Genetic Algorithm MLBB for Team Composition')
 st.write('Presented by Concat Boys:')
 st.write(
 'Saifudin Rosyid,',
