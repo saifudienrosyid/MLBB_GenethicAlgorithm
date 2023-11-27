@@ -11,7 +11,7 @@ st.set_page_config(
     layout="centered", 
     )
 
-file_path = 'Dataset/Mlbb_Heroes.csv'
+file_path = 'dataset/Mlbb_Heroes.csv'
 df, hero_df, total_he, total_tf = preprocess_data(file_path)
 hero_data = hero_df.to_dict(orient='records')
 
