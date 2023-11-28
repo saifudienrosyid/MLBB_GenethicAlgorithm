@@ -15,7 +15,7 @@ file_path = 'Dataset/Mlbb_Heroes.csv'
 df, hero_df, total_he, total_tf = preprocess_data(file_path)
 hero_data = hero_df.to_dict(orient='records')
 
-st.title('Genetic Algorithm MLBB Team Composition')
+st.title('Genetic Algorithm MLBB for Team Composition')
 st.write('Presented by Concat Boys:')
 st.write(
 'Saifudin Rosyid,',
@@ -63,13 +63,13 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Hard Engage Strategy:")
     hard_engage_df = pd.DataFrame.from_dict(result_hard_engage)
-    st.dataframe(hard_engage_df)
+    st.dataframe(hard_engage_df.drop(columns='Team_Fight'))
     fitness_tf = ((temp_result_hard_engage[-1] / total_he) * 100)
     st.write(f"Fitness: {fitness_tf:.2f}%")
 
 with col2:
     st.subheader("Team Fight Strategy:")
     team_fight_df = pd.DataFrame.from_dict(result_team_fight)
-    st.dataframe(team_fight_df)
+    st.dataframe(team_fight_df.drop(columns='Hard_Engage'))
     fitness_tf = ((temp_result_team_fight[-1] / total_tf) * 100)
     st.write(f"Fitness: {fitness_tf:.2f}%")
