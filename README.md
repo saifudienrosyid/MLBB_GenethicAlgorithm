@@ -2,6 +2,8 @@
 
 In this repository, we implement a genetic algorithm to recommend the best team composition.
 
+Link to [Demo](https://mlbb-ga.streamlit.app)
+
 ## About Dataset
 The MLBB Heroes dataset contains information related to role, health points, hero defense and many more. 
 
